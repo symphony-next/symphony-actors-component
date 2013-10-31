@@ -49,15 +49,6 @@
 		protected $lastLength;
 
 		/**
-		 * Get the currently executing actor.
-		 *
-		 * @return	Actor
-		 */
-		public function current() {
-			return $this->current();
-		}
-
-		/**
 		 * Execute the next actor.
 		 *
 		 * @return	boolean

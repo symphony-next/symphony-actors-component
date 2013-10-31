@@ -1,0 +1,20 @@
+{
+	"images": {
+		"1": {
+			"filename": "one.png"
+		},
+		"2": {
+			"filename": "two.png"
+		},
+		"3": {
+			"filename": "three.png"
+		}
+	},
+	"articles": {
+		"dummy-article": {
+			"title": "Dummy Article",
+			"body": "This is a test, really.",
+			"images": [1, 3]
+		}
+	}
+}
