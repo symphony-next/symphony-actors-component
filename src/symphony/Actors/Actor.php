@@ -1,6 +1,8 @@
 <?php
 
 	/**
+	 * Manage actors (events, datasources) and their execution order.
+	 *
 	 * @package symphony\Actors
 	 */
 

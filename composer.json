@@ -1,6 +1,7 @@
 {
-	"name": "symphony/Actors",
 	"type": "library",
+	"name": "symphony/Actors",
+	"description": "Manage actors (events, datasources) and their execution order",
 	"homepage": "http://github.com/symphony-next/symphony-actors-component/",
 	"license": "MIT",
 	"authors": [
