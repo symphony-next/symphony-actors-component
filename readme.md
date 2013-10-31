@@ -1,4 +1,4 @@
-# Proposal: Actors Component
+# RFC: Actors Component
 
 Datasource dependencies work really well in Symphony 2, at least for simpler websites, however for some of the larger websites I've worked on things can quickly become a nightmare. Combine this with relatively inflexible Events system has been the cause of some nasty hacks.
 
