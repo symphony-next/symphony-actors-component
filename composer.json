@@ -1,0 +1,22 @@
+{
+	"name": "symphony/Actors",
+	"type": "library",
+	"homepage": "http://github.com/symphony-next/symphony-actors-component/",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Rowan Lewis",
+			"email": "rl@nbsp.io",
+			"homepage": "http://nbsp.io",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"php": ">=5.4.0"
+	},
+	"autoload": {
+		"psr-0": {
+			"symphony\\Actors": "src/"
+		}
+	}
+}
