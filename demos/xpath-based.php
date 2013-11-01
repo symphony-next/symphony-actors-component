@@ -9,15 +9,21 @@
 		protected $input;
 		protected $output;
 		protected $xpath;
+		protected $done;
 
 		public function __construct(StdClass $input, DOMDocument $output) {
 			$this->input = $input;
 			$this->output = $output;
 			$this->xpath = new DOMXPath($output);
+			$this->done = false;
 		}
 
 		public function executable() {
 			return true;
+		}
+
+		public function executed() {
+			return $this->done;
 		}
 
 		public function ready($final = false) {
@@ -56,6 +62,8 @@
 					}
 				}
 			}
+
+			return $this->done = true;
 		}
 	}
 
@@ -89,6 +97,18 @@
 					$field->appendChild($text);
 				}
 			}
+
+			return $this->done = true;
+		}
+	}
+
+	class DoNothing extends GetData {
+		public function ready($final = false) {
+			return false;
+		}
+
+		public function execute($final = false) {
+			return $this->done = true;
 		}
 	}
 
@@ -102,11 +122,14 @@
 
 	$actors = new ExecutionIterator([
 		new GetImages($input, $output),
-		new GetArticles($input, $output)
+		new GetArticles($input, $output),
+		new DoNothing($input, $output)
 	]);
 
-	while ($actors->execute()) {
-		// Just wait for it... or run additional tests.
+	foreach ($actors->execute() as $actor => $result) {
+		if ($result instanceof Exception) {
+			// Log the exception without interrupting execution...
+		}
 	}
 
 	echo '<pre>', htmlentities($output->saveXML());

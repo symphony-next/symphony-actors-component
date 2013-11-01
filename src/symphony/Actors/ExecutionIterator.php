@@ -7,92 +7,75 @@
 	 */
 
 	namespace symphony\Actors;
-	use ArrayIterator;
+	use Exception;
 
 	/**
 	 * Executes Actors one at a time, allowing Actors that depend on other
 	 * Actors to wait until the last moment.
-	 *
-	 *	$actors = new ExecutionIterator([
-	 *		new TestActor(),
-	 *		new TestActor()
-	 *	]);
-	 *
-	 * 	while (true) {
-	 *		try {
-	 *			if ($actors->execute() === false) break;
-	 *		}
-	 *
-	 *		catch (Exception $e) {
-	 *			$actor = $actors->current();
-	 *			throw new Exception('Error while executing actor ' . get_class($actor));
-	 *		}
-	 *	}
 	 */
-	class ExecutionIterator extends ArrayIterator {
+	class ExecutionIterator {
 		/**
-		 * When this is true time has run out, any Actor not yet executed
-		 * will be given one final chance to do so before execution stops.
+		 * Array of actors to work on.
 		 *
-		 * @var		boolean
+		 * @var		Array
 		 */
-		protected $lastChance;
+		protected $actors;
+
+		public function __construct(array $actors) {
+			$this->actors = $actors;
+		}
 
 		/**
-		 * Represents the number of items in the itorator last time
-		 * `execute` was called. If this number does not change after the
-		 * following execution, the execution after that will be declared
-		 * as the final execution (final countdown...)
+		 * Iterate over actors ready for execution.
 		 *
-		 * @var		integer
+		 * @yields	Actor
 		 */
-		protected $lastLength;
+		public function ready($last_chance = false) {
+			foreach ($this->actors as $actor) {
+				if (
+					$actor->executed() === false
+					&& $actor->executable()
+					&& $actor->ready($last_chance)
+				) {
+					yield $actor;
+				}
+			}
+		}
 
 		/**
-		 * Execute the next actor.
+		 * Iterate over actors ready for execution.
 		 *
-		 * @return	boolean
-		 *	False when all actors have been executed.
+		 * @yields	Actor|Exception
 		 */
 		public function execute() {
-			$this->next();
+			$last_chance = false;
 
-			// Reached end of iterator, start over:
-			if ($this->valid() === false) {
-				$this->rewind();
+			while ($last_chance === false) {
+				$work_done = false;
 
-				// Nothing was executed?
-				if ($this->lastLength == $this->count()) {
-					$this->lastChance = true;
+				foreach ($this->ready() as $actor) {
+					$work_done = true;
+
+					try {
+						yield $actor => $actor->execute();
+					}
+
+					catch (Exception $error) {
+						yield $actor => $error;
+					}
 				}
 
-				$this->lastLength = $this->count();
+				$last_chance = !$work_done;
 			}
 
-			$actor = $this->current();
-
-			// No more actors:
-			if ($actor === null) return false;
-
-			// The actor is executable:
-			if ($actor->executable()) {
-				// Actor is ready, execute it:
-				if ($actor->ready($this->lastChance)) {
-					$actor->execute($this->lastChance);
-					$this->offsetUnset($this->key());
+			foreach ($this->ready(true) as $actor) {
+				try {
+					yield $actor => $actor->execute();
 				}
 
-				// The actor was not ready at its last chance to execute:
-				else if ($this->lastChance) {
-					$this->offsetUnset($this->key());
+				catch (Exception $error) {
+					yield $actor => $error;
 				}
 			}
-
-			// The actor is not executable, remove it from the stack:
-			else {
-				$this->offsetUnset($this->key());
-			}
-
-			return true;
 		}
 	}

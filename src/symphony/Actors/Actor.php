@@ -27,6 +27,14 @@
 		public function execute($final = false);
 
 		/**
+		 * Has this Actor already been executed?
+		 *
+		 * @return	boolean
+		 *	Returns true to prevent execution.
+		 */
+		public function executed();
+
+		/**
 		 * Is this Actor ready to be executed?
 		 *
 		 * @param	boolean		$final
